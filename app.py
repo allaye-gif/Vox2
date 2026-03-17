@@ -8,12 +8,13 @@ import yt_dlp
 from datetime import datetime, timedelta
 
 # --- CONFIGURATION ET SÉCURITÉ ---
+# --- CONFIGURATION ET SÉCURITÉ ---
 def get_api_key():
-    # Clé créateur par défaut
-    DIRECT_KEY = "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"
+    # On ne met plus la clé ici ! 
+    # Streamlit ira la chercher dans tes "Secrets" sur le Web
     if "GROQ_API_KEY" in st.secrets:
         return st.secrets["GROQ_API_KEY"]
-    return os.environ.get("GROQ_API_KEY", DIRECT_KEY)
+    return os.environ.get("GROQ_API_KEY", "")
 
 st.set_page_config(
     page_title="VoxWhisper Pro - Bamako Tech",
