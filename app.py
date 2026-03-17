@@ -28,130 +28,120 @@ if "custom_api_key" in st.session_state and st.session_state.custom_api_key:
 
 client = Groq(api_key=api_key) if api_key else None
 
-# --- DESIGN ULTRA-PREMIUM (CSS) ---
+# --- DESIGN "PURE LIGHT" UI (CSS) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     :root {
-        --primary: #0F172A;
-        --accent: #F59E0B;
-        --glass: rgba(255, 255, 255, 0.03);
-        --glass-border: rgba(255, 255, 255, 0.1);
+        --primary-color: #0066FF;
+        --text-main: #1D1D1F;
+        --text-sub: #86868B;
+        --bg-main: #FFFFFF;
+        --bg-alt: #F5F5F7;
     }
 
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #020617 !important;
-        color: #F8FAFC;
+        font-family: 'Inter', -apple-system, sans-serif;
+        background-color: var(--bg-main) !important;
+        color: var(--text-main);
     }
 
     .stApp {
-        background: radial-gradient(circle at top right, #1E1B4B, #020617);
+        background-color: var(--bg-main);
     }
 
-    /* En-tête Hero */
-    .hero-section {
+    /* En-tête Épurée */
+    .header-section {
+        padding: 4rem 1rem 2rem 1rem;
         text-align: center;
-        padding: 5rem 1rem 3rem 1rem;
     }
 
     .hero-title {
-        font-size: 5rem;
-        font-weight: 800;
-        background: linear-gradient(to right, #F8FAFC, #94A3B8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1rem;
-        letter-spacing: -2px;
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--text-main);
+        letter-spacing: -0.022em;
+        margin-bottom: 0.5rem;
     }
 
     .mali-badge {
         display: inline-flex;
         align-items: center;
-        background: rgba(20, 184, 166, 0.1);
-        border: 1px solid rgba(20, 184, 166, 0.2);
-        padding: 6px 16px;
-        border-radius: 100px;
-        color: #2DD4BF;
-        font-size: 0.9rem;
-        font-weight: 600;
+        background: #F2F2F7;
+        padding: 5px 14px;
+        border-radius: 40px;
+        color: #1D1D1F;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    /* Cartes Minimalistes */
+    .stTabs [data-baseweb="tab-list"] {
+        justify-content: center;
+        background-color: transparent;
+        border-bottom: 1px solid #E5E5E5;
+        gap: 30px;
         margin-bottom: 2rem;
     }
 
-    /* Container de verre */
-    .glass-card {
-        background: rgba(30, 41, 59, 0.5);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        border-radius: 32px;
-        padding: 3rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-
-    /* Tabs Custom */
-    .stTabs [data-baseweb="tab-list"] {
-        background: rgba(15, 23, 42, 0.5);
-        padding: 8px;
-        border-radius: 16px;
-        gap: 8px;
-    }
-
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        border-radius: 12px;
-        color: #94A3B8;
-        font-weight: 600;
-        border: none;
-        transition: all 0.3s;
+        background-color: transparent !important;
+        border: none !important;
+        color: var(--text-sub);
+        font-weight: 500;
+        font-size: 1.1rem;
+        padding-bottom: 10px;
     }
 
     .stTabs [aria-selected="true"] {
-        background: #F59E0B !important;
-        color: #020617 !important;
+        color: var(--primary-color) !important;
+        border-bottom: 2px solid var(--primary-color) !important;
     }
 
-    /* Bouton d'action */
+    /* Bouton Pro */
     .stButton>button {
-        width: 100%;
-        background: #F8FAFC !important;
-        color: #020617 !important;
-        height: 64px !important;
-        border-radius: 18px !important;
-        font-size: 1.2rem !important;
-        font-weight: 800 !important;
+        background-color: var(--text-main) !important;
+        color: white !important;
+        height: 56px !important;
+        border-radius: 12px !important;
         border: none !important;
-        margin-top: 2rem !important;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        transition: all 0.2s ease !important;
+        margin-top: 1rem;
     }
 
     .stButton>button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 40px rgba(248, 250, 252, 0.2) !important;
+        background-color: #323232 !important;
+        transform: translateY(-1px);
     }
 
     /* Inputs */
     .stTextInput>div>div>input {
-        background: rgba(15, 23, 42, 0.5) !important;
-        border: 1px solid var(--glass-border) !important;
-        color: white !important;
+        background: var(--bg-alt) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 15px !important;
+        font-size: 1rem;
+    }
+
+    .stFileUploader section {
+        background-color: var(--bg-alt) !important;
+        border: 2px dashed #D2D2D7 !important;
         border-radius: 14px !important;
-        height: 55px;
     }
-    
-    /* Footer */
-    .footer-text {
+
+    /* Hide UI Streamlit */
+    #MainMenu, header, footer {visibility: hidden;}
+
+    .footer-note {
         text-align: center;
-        padding: 4rem;
-        color: #475569;
+        margin-top: 5rem;
+        color: var(--text-sub);
         font-size: 0.8rem;
-        letter-spacing: 1px;
     }
-    
-    /* Hide Streamlit Header/Footer */
-    #MainMenu {visibility: hidden;}
-    header {visibility: hidden;}
-    footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -177,7 +167,7 @@ def generate_srt(segments):
     return srt_output
 
 def process_audio(input_path):
-    output_path = os.path.join(tempfile.gettempdir(), f"clean_{uuid.uuid4().hex}.mp3")
+    output_path = os.path.join(tempfile.gettempdir(), f"proc_{uuid.uuid4().hex}.mp3")
     command = [
         "ffmpeg", "-y", "-i", input_path,
         "-vn", "-ar", "16000", "-ac", "1", "-ab", "64k",
@@ -187,29 +177,20 @@ def process_audio(input_path):
         subprocess.run(command, check=True, capture_output=True)
         return output_path
     except subprocess.CalledProcessError as e:
-        st.error(f"Erreur FFmpeg : {e.stderr.decode()}")
+        st.error(f"Erreur de conversion audio : {e.stderr.decode() if e.stderr else 'Inconnue'}")
         return None
 
-def download_youtube(url, progress_bar):
+def download_youtube(url):
     temp_dir = tempfile.gettempdir()
     unique_id = uuid.uuid4().hex
-    output_path = os.path.join(temp_dir, f"allaye_{unique_id}")
+    output_path = os.path.join(temp_dir, f"yt_{unique_id}")
     
-    # PARAMÈTRES AVANCÉS POUR CONTOURNER LA 403
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': f"{output_path}.%(ext)s",
         'quiet': True,
-        'no_warnings': True,
-        # Ajout de cookies et d'en-têtes plus agressifs
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'referer': 'https://www.youtube.com/',
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'nocheckcertificate': True,
-        'geo_bypass': True,
-        'http_headers': {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
-        },
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -219,117 +200,90 @@ def download_youtube(url, progress_bar):
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
-            # On tente d'abord de récupérer les infos sans télécharger pour voir si c'est bloqué
-            ydl.extract_info(url, download=True)
+            ydl.download([url])
             return f"{output_path}.mp3"
-        except Exception as e:
-            # Si erreur 403, on propose une alternative explicative
-            st.error("🛑 Limitation YouTube détectée (Erreur 403).")
-            st.warning("Le serveur de déploiement est actuellement restreint par YouTube. Solution : Téléchargez l'audio de la vidéo sur votre appareil et importez-le via l'onglet 'Fichiers'.")
+        except Exception:
             return None
 
-# --- UI CONTENT ---
+# --- CONTENU INTERFACE ---
 
-# Hero Header
 st.markdown("""
-    <div class="hero-section">
-        <div class="mali-badge">🇲🇱 ALLAYEVOX PRO VERSION</div>
-        <h1 class="hero-title">Transcrivez l'impossible.</h1>
-        <p style="color: #94A3B8; font-size: 1.2rem; max-width: 800px; margin: 0 auto;">
-            La puissance du moteur Whisper-V3 Large dans une interface raffinée. 
-            Pensé pour les créateurs maliens.
+    <div class="header-section">
+        <div class="mali-badge">🇲🇱 AllayeVox - Bamako Tech</div>
+        <h1 class="hero-title">Transcription Intelligente</h1>
+        <p style="color: #86868B; font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+            Transformez vos fichiers audio et vidéos en texte avec la plus haute précision disponible sur le marché.
         </p>
     </div>
 """, unsafe_allow_html=True)
 
-# Main Container
-col_l, col_c, col_r = st.columns([1, 4, 1])
+# Main columns
+_, main_col, _ = st.columns([1, 2, 1])
 
-with col_c:
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+with main_col:
+    t1, t2 = st.tabs(["Fichier Audio/Vidéo", "Lien YouTube"])
     
-    tab_file, tab_yt = st.tabs(["📁 FICHIER LOCAL", "🌐 YOUTUBE LINK"])
-    
-    with tab_file:
+    with t1:
         st.markdown("<br>", unsafe_allow_html=True)
-        uploaded_file = st.file_uploader("", type=["mp3", "m4a", "wav", "ogg", "opus", "mp4"])
-        st.caption("Fichiers audio ou vidéo (WhatsApp, Dictaphone, etc.)")
+        src_file = st.file_uploader("", type=["mp3", "m4a", "wav", "ogg", "opus", "mp4"])
+        st.caption("Prend en charge les formats WhatsApp, dictaphones et vidéos.")
         
-    with tab_yt:
+    with t2:
         st.markdown("<br>", unsafe_allow_html=True)
-        yt_link = st.text_input("", placeholder="Collez votre lien YouTube ici...")
-        st.info("💡 Note : Si le lien est bloqué, utilisez l'onglet Fichier avec un enregistrement.")
+        yt_url = st.text_input("", placeholder="Collez le lien YouTube ici...")
+        st.warning("⚠️ Note sur YouTube : Google bloque parfois les serveurs de Cloud. Si une erreur 403 survient, téléchargez l'audio de la vidéo et importez-la dans l'onglet 'Fichier'.")
 
-    if st.button("DÉMARRER LA MAGIE"):
+    if st.button("Lancer la transcription"):
         if not api_key:
-            st.error("Clé API Groq manquante dans les Secrets.")
-        elif not uploaded_file and not yt_link:
-            st.toast("Veuillez sélectionner une source.")
+            st.error("Clé API non trouvée dans les Secrets.")
+        elif not src_file and not yt_url:
+            st.toast("Source manquante.")
         else:
             try:
-                final_audio = None
+                audio_path = None
                 
-                # Phase 1: Acquisition
-                if uploaded_file:
-                    with st.spinner("📦 Préparation du fichier..."):
-                        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1]) as t:
-                            t.write(uploaded_file.getvalue())
-                            final_audio = process_audio(t.name)
-                elif yt_link:
-                    with st.spinner("📡 Connexion à YouTube..."):
-                        p_bar = st.progress(0)
-                        final_audio = download_youtube(yt_link, p_bar)
-                        p_bar.empty()
-
-                # Phase 2: Transcription
-                if final_audio:
-                    with st.status("🔮 Intelligence Artificielle en cours...", expanded=True) as status:
-                        st.write("Analyse des ondes sonores...")
-                        start = time.time()
-                        with open(final_audio, "rb") as f:
-                            response = client.audio.transcriptions.create(
-                                file=(final_audio, f.read()),
+                if src_file:
+                    with st.spinner("Traitement du fichier..."):
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(src_file.name)[1]) as f:
+                            f.write(src_file.getvalue())
+                            audio_path = process_audio(f.name)
+                
+                elif yt_url:
+                    with st.spinner("Récupération de l'audio YouTube..."):
+                        audio_path = download_youtube(yt_url)
+                        if not audio_path:
+                            st.error("🛑 Limitation YouTube (403) : Cette vidéo est bloquée par Google. Veuillez télécharger l'audio manuellement et utiliser l'onglet 'Fichier'.")
+                
+                if audio_path:
+                    with st.status("Analyse par l'IA...", expanded=True) as status:
+                        st.write("Écoute du contenu...")
+                        with open(audio_path, "rb") as f:
+                            res = client.audio.transcriptions.create(
+                                file=(audio_path, f.read()),
                                 model="whisper-large-v3",
                                 response_format="verbose_json"
                             )
-                        duration = round(time.time() - start, 1)
-                        status.update(label=f"Succès ! ({duration}s)", state="complete")
+                        status.update(label="Analyse terminée", state="complete")
                     
                     st.balloons()
                     
-                    # Phase 3: Display
-                    st.markdown("### 📝 Résultat de l'analyse")
-                    st.markdown(f'<div style="background: rgba(15, 23, 42, 0.8); padding: 20px; border-radius: 12px; border: 1px solid var(--glass-border); line-height: 1.6;">{response.text}</div>', unsafe_allow_html=True)
+                    st.markdown("### Transcription")
+                    st.markdown(f'<div style="background: #F5F5F7; padding: 25px; border-radius: 12px; border: 1px solid #E5E5E5; color: #1D1D1F; line-height: 1.7;">{res.text}</div>', unsafe_allow_html=True)
                     
                     c1, c2 = st.columns(2)
                     with c1:
-                        st.download_button("📥 Télécharger (.txt)", response.text, "transcription.txt", use_container_width=True)
+                        st.download_button("Télécharger le texte (.txt)", res.text, "transcription.txt", use_container_width=True)
                     with c2:
-                        srt = generate_srt(response.segments)
-                        st.download_button("🎬 Sous-titres (.srt)", srt, "subtitles.srt", use_container_width=True)
+                        srt = generate_srt(res.segments)
+                        st.download_button("Télécharger sous-titres (.srt)", srt, "subtitles.srt", use_container_width=True)
                     
-                    # Cleanup
-                    if os.path.exists(final_audio): os.remove(final_audio)
+                    if os.path.exists(audio_path): os.remove(audio_path)
 
             except Exception as e:
                 st.error(f"Une erreur système est survenue : {str(e)}")
 
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# Footer
 st.markdown("""
-    <div class="footer-text">
-        &copy; 2024 ALLAYEVOX ML • ENGINE WHISPER V3 • POWERED BY GROQ
+    <div class="footer-note">
+        AllayeVox Pro • Édition Spéciale Mali • Whisper V3 Large
     </div>
 """, unsafe_allow_html=True)
-
-# Sidebar Ultra-Minimal
-with st.sidebar:
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("### ⚙️ OPTIONS")
-    st.toggle("Auto-correction ponctuation", value=True)
-    st.toggle("Traduction vers l'Anglais", value=False)
-    
-    with st.expander("Clé API"):
-        custom = st.text_input("Overwrite Key", type="password")
-        if custom: st.session_state.custom_api_key = custom
