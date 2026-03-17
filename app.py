@@ -23,9 +23,8 @@ st.set_page_config(
 api_key = get_api_key()
 client = Groq(api_key=api_key) if api_key else None
 
-
 # ==============================
-# DESIGN PREMIUM
+# DESIGN
 # ==============================
 
 st.markdown("""
@@ -35,40 +34,23 @@ body {
     color: white;
     font-family: 'Inter', sans-serif;
 }
-
-.block-container {
-    padding-top: 2rem;
-}
-
 .hero {
     text-align: center;
-    padding: 4rem 1rem;
+    padding: 3rem;
 }
-
-.hero h1 {
-    font-size: 3.5rem;
-    font-weight: 800;
-}
-
 .card {
     background: rgba(255,255,255,0.05);
     padding: 2rem;
     border-radius: 20px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
 }
-
 .stButton button {
     background: linear-gradient(90deg, #2563eb, #06b6d4);
-    border: none;
-    border-radius: 12px;
-    height: 55px;
+    border-radius: 10px;
+    height: 50px;
     font-weight: bold;
-    font-size: 1.1rem;
     color: white;
     width: 100%;
 }
-
 .result {
     background: white;
     color: black;
@@ -77,7 +59,6 @@ body {
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 # ==============================
 # UTILS
@@ -95,17 +76,23 @@ def generate_srt(segments):
 
 def process_audio(input_path):
     output = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4().hex}.mp3")
+
     cmd = [
         "ffmpeg", "-y", "-i", input_path,
         "-vn", "-ac", "1", "-ar", "16000",
         output
     ]
-    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    return output
 
+    try:
+        subprocess.run(cmd, check=True, capture_output=True)
+        return output
+    except Exception as e:
+        st.error("❌ Erreur FFmpeg")
+        st.code(str(e))
+        return None
 
 # ==============================
-# YOUTUBE ULTRA ROBUSTE
+# YOUTUBE DEBUG VERSION
 # ==============================
 
 def download_youtube(url):
@@ -113,14 +100,19 @@ def download_youtube(url):
     uid = uuid.uuid4().hex
     out = os.path.join(temp_dir, f"{uid}.%(ext)s")
 
+    cookie_path = os.path.join(os.getcwd(), "cookies.txt")
+
+    st.write("📂 Dossier courant :", os.getcwd())
+    st.write("📄 cookies.txt existe ?", os.path.exists(cookie_path))
+
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': out,
         'quiet': False,
         'noplaylist': True,
 
-        # 🔥 LA MAGIE EST ICI
-        'cookiefile': 'cookies.txt',
+        # cookies
+        'cookiefile': cookie_path,
 
         'http_headers': {
             'User-Agent': 'Mozilla/5.0'
@@ -133,14 +125,27 @@ def download_youtube(url):
     }
 
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+        st.info("🚀 Téléchargement YouTube en cours...")
 
-        return os.path.join(temp_dir, f"{uid}.mp3")
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+
+        final_path = os.path.join(temp_dir, f"{uid}.mp3")
+
+        st.write("📁 Fichier attendu :", final_path)
+        st.write("📁 Existe ?", os.path.exists(final_path))
+
+        if os.path.exists(final_path):
+            return final_path
+        else:
+            st.error("❌ MP3 non généré")
+            return None
 
     except Exception as e:
-        print("Erreur yt:", e)
+        st.error("❌ ERREUR YT-DLP :")
+        st.code(str(e))
         return None
+
 # ==============================
 # UI
 # ==============================
@@ -148,10 +153,9 @@ def download_youtube(url):
 st.markdown("""
 <div class="hero">
 <h1>🎙️ AllayeVox Pro</h1>
-<p>Transcription IA ultra rapide • YouTube • Audio • Vidéo</p>
+<p>Transcription IA • YouTube • Audio</p>
 </div>
 """, unsafe_allow_html=True)
-
 
 col1, col2, col3 = st.columns([1,2,1])
 
@@ -170,47 +174,64 @@ with col2:
         url = st.text_input("Lien YouTube")
 
     if st.button("🚀 Transcrire maintenant"):
-        if not api_key:
-            st.error("Clé API manquante")
-        else:
-            audio = None
 
-            # Upload
-            if uploaded:
+        if not api_key:
+            st.error("❌ Clé API manquante")
+            st.stop()
+
+        audio = None
+
+        # ================= FILE =================
+        if uploaded:
+            with st.spinner("Préparation audio..."):
                 tmp = tempfile.NamedTemporaryFile(delete=False)
                 tmp.write(uploaded.read())
                 audio = process_audio(tmp.name)
 
-            # YouTube
-            elif url:
-                with st.spinner("Téléchargement YouTube..."):
-                    audio = download_youtube(url)
+        # ================= YOUTUBE =================
+        elif url:
+            audio = download_youtube(url)
 
-            if not audio:
-                st.error("Erreur récupération audio")
-            else:
-                with st.spinner("Transcription IA en cours..."):
-                    with open(audio, "rb") as f:
-                        result = client.audio.transcriptions.create(
-                            file=(audio, f.read()),
-                            model="whisper-large-v3",
-                            response_format="verbose_json"
-                        )
+        else:
+            st.warning("⚠️ Ajoute un fichier ou un lien")
+            st.stop()
 
-                st.success("Transcription terminée")
+        # ================= ERREUR =================
+        if not audio:
+            st.error("❌ Erreur récupération audio")
+            st.stop()
 
-                st.markdown('<div class="result">', unsafe_allow_html=True)
-                st.write(result.text)
-                st.markdown('</div>', unsafe_allow_html=True)
+        # ================= TRANSCRIPTION =================
+        with st.spinner("🤖 Transcription IA en cours..."):
+            try:
+                with open(audio, "rb") as f:
+                    result = client.audio.transcriptions.create(
+                        file=(audio, f.read()),
+                        model="whisper-large-v3",
+                        response_format="verbose_json"
+                    )
+            except Exception as e:
+                st.error("❌ Erreur IA")
+                st.code(str(e))
+                st.stop()
 
-                colA, colB = st.columns(2)
+        st.success("✅ Transcription terminée")
 
-                with colA:
-                    st.download_button("📄 TXT", result.text, "transcript.txt")
+        st.markdown('<div class="result">', unsafe_allow_html=True)
+        st.write(result.text)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-                with colB:
-                    st.download_button("🎬 SRT", generate_srt(result.segments), "subtitles.srt")
+        colA, colB = st.columns(2)
 
-                os.remove(audio)
+        with colA:
+            st.download_button("📄 TXT", result.text, "transcript.txt")
+
+        with colB:
+            st.download_button("🎬 SRT", generate_srt(result.segments), "subtitles.srt")
+
+        try:
+            os.remove(audio)
+        except:
+            pass
 
     st.markdown('</div>', unsafe_allow_html=True)
