@@ -1,0 +1,1 @@
+# VoxWhisper Pro Mali\n\nVersion créateur avec accès bypass.

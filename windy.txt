@@ -1,0 +1,195 @@
+import React, { useState, useEffect } from 'react';
+import { MapPin, ExternalLink, Wind, Layers, ArrowRight } from 'lucide-react';
+
+const MaliWeatherApp = () => {
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [activeModel, setActiveModel] = useState('ecmwf'); // ecmwf, gfs, icon
+  const [activeLayer, setActiveLayer] = useState('wind'); // wind, temp, rain
+
+  // Les coordonnées des 19 régions + Bamako
+  const locations = [
+    { name: 'Bamako', lat: 12.6392, lon: -8.0029 },
+    { name: 'Kayes', lat: 14.4431, lon: -11.4409 },
+    { name: 'Koulikoro', lat: 12.8627, lon: -7.5599 },
+    { name: 'Sikasso', lat: 11.3176, lon: -5.6665 },
+    { name: 'Ségou', lat: 13.4317, lon: -6.2157 },
+    { name: 'Mopti', lat: 14.4843, lon: -4.1829 },
+    { name: 'Tombouctou', lat: 16.7735, lon: -3.0074 },
+    { name: 'Gao', lat: 16.2717, lon: -0.0447 },
+    { name: 'Kidal', lat: 18.4411, lon: 1.4078 },
+    { name: 'Taoudénit', lat: 22.6783, lon: -3.9800 },
+    { name: 'Ménaka', lat: 15.9182, lon: 2.4022 },
+    { name: 'Nioro du Sahel', lat: 15.2200, lon: -9.5800 },
+    { name: 'Kita', lat: 13.0300, lon: -9.4800 },
+    { name: 'Dioïla', lat: 12.4800, lon: -6.8000 },
+    { name: 'Nara', lat: 15.1600, lon: -7.2800 },
+    { name: 'Bougouni', lat: 11.4100, lon: -7.4800 },
+    { name: 'Koutiala', lat: 12.3900, lon: -5.4600 },
+    { name: 'San', lat: 13.3000, lon: -4.8900 },
+    { name: 'Douentza', lat: 14.9900, lon: -2.9500 },
+    { name: 'Bandiagara', lat: 14.3500, lon: -3.6100 },
+  ];
+
+  useEffect(() => {
+    if (locations.length > 0) {
+      setSelectedLocation(locations[0]);
+    }
+  }, []);
+
+  // Générateur d'URL Embed Windy
+  const getEmbedUrl = (loc, model, layer) => {
+    if (!loc) return '';
+    const params = new URLSearchParams({
+      lat: loc.lat,
+      lon: loc.lon,
+      detailLat: loc.lat,
+      detailLon: loc.lon,
+      width: 800,
+      height: 600,
+      zoom: 10,
+      level: 'surface',
+      overlay: layer,
+      product: model,
+      menu: '',
+      message: 'true',
+      marker: 'true',
+      calendar: 'now',
+      pressure: '',
+      type: 'map',
+      location: 'coordinates',
+      detail: 'true',
+      metricWind: 'km/h',
+      metricTemp: '°C',
+      radarRange: -1
+    });
+    return `https://embed.windy.com/embed2.html?${params.toString()}`;
+  };
+
+  // Le lien magique vers le tableau comparatif
+  const getMultimodelUrl = (loc) => {
+    return `https://www.windy.com/multimodel/${loc.lat}/${loc.lon}?${loc.lat},${loc.lon},10`;
+  };
+
+  return (
+    <div className="flex h-screen bg-white font-sans overflow-hidden">
+      
+      {/* Sidebar - Liste des régions */}
+      <div className="w-72 bg-slate-50 border-r border-slate-200 flex flex-col h-full shadow-xl z-20">
+        <div className="p-5 bg-red-700 text-white shadow-md">
+          <div className="flex items-center gap-2 mb-1">
+            <Wind size={28} />
+            <h1 className="font-bold text-xl tracking-tight">Météo Mali</h1>
+          </div>
+          <p className="text-red-100 text-xs opacity-90 font-medium">Accès rapide Windy (20 zones)</p>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto">
+          {locations.map((loc, idx) => (
+            <div 
+                key={idx}
+                className={`group border-b border-slate-100 transition-all duration-200 ${
+                  selectedLocation?.name === loc.name 
+                    ? 'bg-white border-l-4 border-l-red-600 shadow-sm' 
+                    : 'hover:bg-slate-100'
+                }`}
+            >
+                <div className="flex items-center justify-between p-3">
+                    {/* Zone cliquable pour la carte */}
+                    <button
+                    onClick={() => setSelectedLocation(loc)}
+                    className="flex-1 text-left flex items-center gap-3"
+                    >
+                        <div className={`p-1.5 rounded-full ${selectedLocation?.name === loc.name ? 'bg-red-100 text-red-700' : 'bg-slate-200 text-slate-500'}`}>
+                            <MapPin size={16} />
+                        </div>
+                        <span className={`font-semibold text-sm ${selectedLocation?.name === loc.name ? 'text-gray-900' : 'text-gray-600'}`}>
+                            {loc.name}
+                        </span>
+                    </button>
+
+                    {/* BOUTON D'ACCÈS RAPIDE DIRECT */}
+                    <a 
+                        href={getMultimodelUrl(loc)}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Ouvrir le tableau comparatif 4 modèles"
+                    >
+                        <ExternalLink size={18} />
+                    </a>
+                </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col h-full relative bg-slate-100">
+        
+        {/* Header de contrôle */}
+        {selectedLocation && (
+          <div className="bg-white px-6 py-4 shadow-sm z-10 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+               <div>
+                  <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                    {selectedLocation.name}
+                    <span className="text-xs font-mono font-normal text-slate-400 bg-slate-100 px-2 py-1 rounded">
+                       {selectedLocation.lat.toFixed(3)}, {selectedLocation.lon.toFixed(3)}
+                    </span>
+                  </h2>
+               </div>
+
+               <div className="flex items-center gap-4">
+                   {/* Selecteur Modèle Carte */}
+                   <div className="hidden md:flex bg-slate-100 rounded-lg p-1">
+                        {['ecmwf', 'gfs', 'icon'].map((m) => (
+                            <button
+                                key={m}
+                                onClick={() => setActiveModel(m)}
+                                className={`px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all ${
+                                    activeModel === m ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                }`}
+                            >
+                                {m}
+                            </button>
+                        ))}
+                   </div>
+
+                   {/* LE BOUTON PRINCIPAL */}
+                   <a 
+                     href={getMultimodelUrl(selectedLocation)} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all font-bold text-sm"
+                   >
+                     <span>Tableau Comparatif</span>
+                     <ArrowRight size={16} />
+                   </a>
+               </div>
+          </div>
+        )}
+
+        {/* CONTENU : IFRAME WINDY */}
+        <div className="flex-1 relative w-full h-full bg-slate-200">
+            {selectedLocation ? (
+                <iframe 
+                    key={`${selectedLocation.name}-${activeModel}`}
+                    src={getEmbedUrl(selectedLocation, activeModel, activeLayer)}
+                    width="100%" 
+                    height="100%" 
+                    frameBorder="0"
+                    title="Windy Map"
+                    className="w-full h-full block"
+                    allow="geolocation"
+                ></iframe>
+            ) : (
+                <div className="flex items-center justify-center h-full text-slate-400">
+                    <p>Sélectionnez une région</p>
+                </div>
+            )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MaliWeatherApp;
