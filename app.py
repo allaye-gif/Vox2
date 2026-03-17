@@ -114,15 +114,18 @@ def download_youtube(url):
     out = os.path.join(temp_dir, f"{uid}.%(ext)s")
 
     ydl_opts = {
-        'format': 'bestaudio',
+        'format': 'bestaudio/best',
         'outtmpl': out,
-        'quiet': True,
+        'quiet': False,
         'noplaylist': True,
-        'nocheckcertificate': True,
-        'cookiefile': 'cookies.txt',  # 🔥 important
+
+        # 🔥 LA MAGIE EST ICI
+        'cookiefile': 'cookies.txt',
+
         'http_headers': {
             'User-Agent': 'Mozilla/5.0'
         },
+
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -132,11 +135,12 @@ def download_youtube(url):
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
+
         return os.path.join(temp_dir, f"{uid}.mp3")
+
     except Exception as e:
+        print("Erreur yt:", e)
         return None
-
-
 # ==============================
 # UI
 # ==============================
